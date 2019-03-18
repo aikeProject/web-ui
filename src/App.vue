@@ -12,6 +12,13 @@
                 </div>
             </el-card>
         </template>
+        <el-container>
+            <el-header>Header</el-header>
+            <el-container>
+                <el-aside width="200px">Aside</el-aside>
+                <el-main>Main</el-main>
+            </el-container>
+        </el-container>
     </div>
 </template>
 
@@ -39,12 +46,17 @@
                     this.package = json;
                 }, (e) => {
                     this.$message({
-                        showClose: true,
-                        message: '路径不正确，不包含package.json文件',
-                        type: 'error'
+                        // showClose: true,
+                        message: '路径不正确，需要包含package.json文件',
+                        type: 'error',
+                        duration: 0
                     });
                 });
             });
         }
     }
 </script>
+
+<style scoped>
+
+</style>
