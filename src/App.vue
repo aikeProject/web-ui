@@ -20,6 +20,9 @@
                 </el-aside>
                 <el-main>
                     <el-button @click="shell">TEST</el-button>
+                    <el-button @click="spawn">spawn</el-button>
+                    <el-button @click="close">close</el-button>
+                    <div id="terminal"></div>
                 </el-main>
             </el-container>
         </el-container>
@@ -31,9 +34,17 @@
     import loadJsonFile from 'load-json-file';
     import {Terminal} from 'xterm';
     import util from 'util';
-    import {exec} from 'child_process';
+    import {exec, spawn} from 'child_process';
+
     const pExec = util.promisify(exec);
     const decoder = new util.TextDecoder('gbk');
+
+    const term = new Terminal({
+        rendererType: 'dom'
+    });
+
+    import utils from './utils/util.js';
+    import spawnRun from './utils/spawn.js';
 
     export default {
         name: 'App',
@@ -41,6 +52,7 @@
             return {
                 path: '',
                 package: {},
+                run: null,
             }
         },
         methods: {
@@ -48,15 +60,32 @@
                 ipcRenderer.send('open-file-dialog');
             },
             shell() {
+                const _this = this;
+
                 async function lsExample() {
-                    let {stdout, stderr} = await pExec('dir', {encoding: 'buffer'});
+                    let {stdout, stderr} = await pExec('npm run lint', {encoding: 'buffer'});
                     stdout = decoder.decode(stdout);
                     stderr = decoder.decode(stderr);
                     console.log('stdout:', stdout);
                     console.log('stderr:', stderr);
+                    _this.write(stdout);
                 }
 
                 lsExample();
+            },
+            spawn() {
+                let _this = this;
+                this.run = spawnRun('npm run make', (data) => {
+                    _this.write(data + '');
+                });
+                this.run.run();
+                console.log(this.run);
+            },
+            close() {
+                this.run.close();
+            },
+            write(str) {
+                term.write(str)
             }
         },
         created() {
@@ -73,6 +102,9 @@
                     });
                 });
             });
+        },
+        mounted() {
+            term.open(document.getElementById('terminal'));
         }
     }
 </script>
