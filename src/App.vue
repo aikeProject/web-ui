@@ -19,10 +19,9 @@
                     </template>
                 </el-aside>
                 <el-main>
-                    <el-button @click="shell">TEST</el-button>
                     <el-button @click="spawn">spawn</el-button>
                     <el-button @click="close">close</el-button>
-                    <div id="terminal"></div>
+                    <terminalView></terminalView>
                 </el-main>
             </el-container>
         </el-container>
@@ -35,6 +34,8 @@
     import {Terminal} from 'xterm';
     import util from 'util';
     import {exec, spawn} from 'child_process';
+
+    import terminalView from './view/Terminal.vue';
 
     const pExec = util.promisify(exec);
     const decoder = new util.TextDecoder('gbk');
@@ -55,23 +56,12 @@
                 run: null,
             }
         },
+        components: {
+            terminalView
+        },
         methods: {
             openFile() {
                 ipcRenderer.send('open-file-dialog');
-            },
-            shell() {
-                const _this = this;
-
-                async function lsExample() {
-                    let {stdout, stderr} = await pExec('npm run lint', {encoding: 'buffer'});
-                    stdout = decoder.decode(stdout);
-                    stderr = decoder.decode(stderr);
-                    console.log('stdout:', stdout);
-                    console.log('stderr:', stderr);
-                    _this.write(stdout);
-                }
-
-                lsExample();
             },
             spawn() {
                 let _this = this;
@@ -79,7 +69,6 @@
                     _this.write(data + '');
                 });
                 this.run.run();
-                console.log(this.run);
             },
             close() {
                 this.run.close();
@@ -104,7 +93,7 @@
             });
         },
         mounted() {
-            term.open(document.getElementById('terminal'));
+            // term.open(document.getElementById('terminal'));
         }
     }
 </script>

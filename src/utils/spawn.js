@@ -5,13 +5,10 @@
  */
 
 import util from 'util';
-import {spawn} from 'child_process';
+import {spawn, execFile} from 'child_process';
 
 const decoder = new util.TextDecoder('gbk');
 
-class test {
-
-}
 
 class spawnRun {
     constructor(cmd, resultCallback, errorCallback) {
@@ -40,20 +37,19 @@ class spawnRun {
         });
 
         this.result.on('close', (code) => {
-            console.log(`exit子进程退出码：${code}`);
+            this.resultCallback && this.resultCallback('---------exit--------');
         });
 
         this.result.on('exit', (code) => {
-            console.log(`exit子进程退出码：${code}`);
+            // this.resultCallback && this.resultCallback('---------exit--------');
         });
+
+        return this.result;
     }
 
     close() {
-        console.log('kill  SIGHUP');
-        console.log(this.result)
-        process.kill(-this.result.pid);
-        // let a = this.result.kill();
-        // console.log(a)
+        console.log('child_process--', this.result.pid);
+        execFile('taskkill', ['/T', '/F', '/PID', this.result.pid.toString()]);
     }
 }
 
