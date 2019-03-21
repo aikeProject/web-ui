@@ -19,9 +19,17 @@
                     </template>
                 </el-aside>
                 <el-main>
-                    <el-button @click="spawn">spawn</el-button>
-                    <el-button @click="close">close</el-button>
-                    <terminalView></terminalView>
+                    <div class="app-main">
+                        <div>
+                            <el-button @click="spawn">spawn</el-button>
+                            <el-button @click="close">close</el-button>
+                        </div>
+                        <div class="terminal-view-wrapper">
+                            <terminalView ref="terminal" :cols="100" :rows="24"
+                                          auto-size
+                                          :options="{scrollback: 5000,disableStdin: true,useFlowControl: true}"></terminalView>
+                        </div>
+                    </div>
                 </el-main>
             </el-container>
         </el-container>
@@ -31,20 +39,7 @@
 <script>
     import {ipcRenderer} from 'electron';
     import loadJsonFile from 'load-json-file';
-    import {Terminal} from 'xterm';
-    import util from 'util';
-    import {exec, spawn} from 'child_process';
-
     import terminalView from './view/Terminal.vue';
-
-    const pExec = util.promisify(exec);
-    const decoder = new util.TextDecoder('gbk');
-
-    const term = new Terminal({
-        rendererType: 'dom'
-    });
-
-    import utils from './utils/util.js';
     import spawnRun from './utils/spawn.js';
 
     export default {
@@ -73,9 +68,13 @@
             close() {
                 this.run.close();
             },
-            write(str) {
-                term.write(str)
-            }
+            async result(data) {
+                await this.$nextTick();
+                const terminal = this.$refs.terminal;
+                if (terminal) {
+                    terminal.addLog(data);
+                }
+            },
         },
         created() {
             ipcRenderer.on('selected-dir', (event, path) => {
@@ -93,7 +92,6 @@
             });
         },
         mounted() {
-            // term.open(document.getElementById('terminal'));
         }
     }
 </script>
@@ -106,8 +104,21 @@
         height: 100%;
     }
 
+    .app-main {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        height: 100%;
+    }
+
     .custom-el-container {
         width: 100%;
         height: 100%;
+    }
+
+    .terminal-view-wrapper {
+        flex: auto 1 1;
+        height: 0;
+        position: relative;
     }
 </style>

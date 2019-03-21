@@ -5,7 +5,8 @@
 */
 
 <template>
-    <div class="terminal-view">
+    <div class="terminal-view card">
+        <div class="xterm-bar"></div>
         <div class="view">
             <div ref="render" class="xterm-render"/>
         </div>
@@ -15,17 +16,14 @@
 <script>
     import {Terminal} from 'xterm'
     import * as fit from 'xterm/dist/addons/fit/fit'
-    import * as webLinks from 'xterm/dist/addons/webLinks/webLinks'
+    // import * as webLinks from 'xterm/dist/addons/webLinks/webLinks'
 
-    Terminal.applyAddon(fit)
-    Terminal.applyAddon(webLinks)
+    Terminal.applyAddon(fit);
+    // Terminal.applyAddon(webLinks);
 
     const defaultTheme = {
-        // foreground: '#2c3e50',
-        foreground: '#e4f5ef',
-        // background: '#fff',
-        // background: '#e4f5ef',
-        background: '#2c3e50',
+        foreground: '#2c3e50',
+        background: '#fff',
         cursor: 'rgba(0, 0, 0, .4)',
         selection: 'rgba(0, 0, 0, 0.3)',
         black: '#000000',
@@ -46,27 +44,110 @@
         brightWhite: '#ffffff'
     };
 
-    const darkTheme = Object.assign(defaultTheme, {
-        foreground: '#fff',
-        background: '#1d2935',
-        cursor: 'rgba(255, 255, 255, .4)',
-        selection: 'rgba(255, 255, 255, 0.3)',
-        magenta: '#e83030',
-        brightMagenta: '#e83030'
-    });
-
     export default {
         name: "Terminal",
+        props: {
+            cols: {
+                type: Number,
+                required: true
+            },
+
+            rows: {
+                type: Number,
+                required: true
+            },
+
+            content: {
+                type: String,
+                default: undefined
+            },
+
+            autoSize: {
+                type: Boolean,
+                default: false
+            },
+
+            options: {
+                type: Object,
+                default: () => ({})
+            },
+
+            toolbar: {
+                type: Boolean,
+                default: false
+            },
+
+            title: {
+                type: String,
+                default: null
+            },
+
+            openLinks: {
+                type: Boolean,
+                default: false
+            }
+        },
+        watch: {
+            cols(c) {
+                this.$_terminal.resize(c, this.rows)
+            },
+
+            rows(r) {
+                this.$_terminal.resize(this.cols, r)
+            },
+
+            content: 'setContent',
+        },
         methods: {
             initTerminal() {
                 let term = this.$_terminal = new Terminal({
-                    // cols: this.cols,
-                    // rows: this.rows,
                     theme: defaultTheme,
-                    // ...this.options
                 });
-                // webLinks.webLinksInit(term, this.handleLink)
-                term.open(this.$refs.render)
+                term.open(this.$refs.render);
+                term.on('blur', () => this.$emit('blur'));
+                term.on('focus', () => this.$emit('focus'));
+                this.$nextTick(this.fit)
+            },
+            async fit() {
+                let term = this.$_terminal;
+                term.element.style.display = 'none';
+
+                await this.$nextTick();
+
+                term.fit();
+                term.element.style.display = '';
+                term.refresh(0, term.rows - 1);
+            },
+            setContent(value, ln = true) {
+                if (value.indexOf('\n') !== -1) {
+                    value.split('\n').forEach(
+                        t => this.setContent(t)
+                    );
+                    return
+                }
+                if (typeof value === 'string') {
+                    this.$_terminal[ln ? 'writeln' : 'write'](value);
+                } else {
+                    this.$_terminal.writeln('');
+                }
+            },
+            addLog (log) {
+                this.setContent(log.text, log.type === 'stdout')
+            },
+            clear() {
+                this.$_terminal.clear()
+            },
+
+            scrollToBottom() {
+                this.$_terminal.scrollToBottom()
+            },
+
+            focus() {
+                this.$_terminal.focus()
+            },
+
+            blur() {
+                this.$_terminal.blur()
             }
         },
         mounted() {
@@ -75,22 +156,34 @@
     }
 </script>
 
-<style scoped lang="stylus">
-    .terminal-view
-        v-box()
-        align-items stretch
+<style scoped lang="scss">
+    .terminal-view {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
 
-        .view
-            flex 100% 1 1
-            height 0
-            position relative
-            padding-left $padding-item
+    .card {
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, .05);
+    }
 
-        .xterm-render
-            width 100%
-            height 100%
+    .view {
+        flex: 100% 1 1;
+        height: 0;
+        position: relative;
+        padding-left: 16px;
+    }
 
-            >>> .xterm
-                .xterm-cursor-layer
-                    display none
+    .xterm-render {
+        width: 100%;
+        height: 100%;
+    }
+
+    .xterm-cursor-layer {
+        display: none !important;
+    }
 </style>
