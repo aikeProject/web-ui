@@ -6,10 +6,13 @@
 
 <template>
     <div class="terminal-view card">
-        <div class="xterm-bar"></div>
+        <div class="xterm-bar">
+            <el-button icon="el-icon-delete" circle></el-button>
+        </div>
         <div class="view">
             <div ref="render" class="xterm-render"/>
         </div>
+        <resize-observer v-if="autoSize" @notify="fit"/>
     </div>
 </template>
 
@@ -43,6 +46,15 @@
         brightBlack: '#808080',
         brightWhite: '#ffffff'
     };
+
+    const darkTheme = Object.assign({}, defaultTheme, {
+        foreground: '#fff',
+        background: '#1d2935',
+        cursor: 'rgba(255, 255, 255, .4)',
+        selection: 'rgba(255, 255, 255, 0.3)',
+        magenta: '#e83030',
+        brightMagenta: '#e83030'
+    });
 
     export default {
         name: "Terminal",
@@ -87,6 +99,15 @@
                 default: false
             }
         },
+        computed: {
+            theme() {
+                if (this.darkMode) {
+                    return darkTheme
+                } else {
+                    return defaultTheme
+                }
+            }
+        },
         watch: {
             cols(c) {
                 this.$_terminal.resize(c, this.rows)
@@ -97,16 +118,30 @@
             },
 
             content: 'setContent',
+
+            darkMode(value, oldValue) {
+                console.log(value, oldValue);
+                if (typeof oldValue === 'undefined') {
+                    this.initTerminal()
+                } else if (this.$_terminal) {
+                    this.$_terminal.setOption('theme', this.theme)
+                }
+            }
         },
         methods: {
             initTerminal() {
-                let term = this.$_terminal = new Terminal({
+                const options = Object.assign({}, {
+                    rows: this.rows,
+                    cols: this.cols,
                     theme: defaultTheme,
-                });
+                }, this.options);
+                let term = this.$_terminal = new Terminal(options);
                 term.open(this.$refs.render);
                 term.on('blur', () => this.$emit('blur'));
                 term.on('focus', () => this.$emit('focus'));
-                this.$nextTick(this.fit)
+                if (this.autoSize) {
+                    this.$nextTick(this.fit)
+                }
             },
             async fit() {
                 let term = this.$_terminal;
@@ -131,7 +166,7 @@
                     this.$_terminal.writeln('');
                 }
             },
-            addLog (log) {
+            addLog(log) {
                 this.setContent(log.text, log.type === 'stdout')
             },
             clear() {
@@ -148,42 +183,49 @@
 
             blur() {
                 this.$_terminal.blur()
-            }
+            },
         },
         mounted() {
             this.initTerminal();
-        }
+        },
+        beforeDestroy() {
+            this.$_terminal.destroy()
+        },
     }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
+
     .terminal-view {
         width: 100%;
         height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
         display: flex;
         flex-direction: column;
         align-items: stretch;
-    }
 
-    .card {
-        background: #fff;
-        border-radius: 6px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, .05);
-    }
+        &.card {
+            background: #fff;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, .05);
+        }
 
-    .view {
-        flex: 100% 1 1;
-        height: 0;
-        position: relative;
-        padding-left: 16px;
-    }
+        .view {
+            flex: 100% 1 1;
+            height: 0;
+            position: relative;
+            padding-left: 16px;
+        }
 
-    .xterm-render {
-        width: 100%;
-        height: 100%;
-    }
+        .xterm-render {
+            width: 100%;
+            height: 100%;
+        }
 
-    .xterm-cursor-layer {
-        display: none !important;
+        .xterm-cursor-layer {
+            display: none !important;
+        }
     }
 </style>

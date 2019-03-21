@@ -59,9 +59,11 @@
                 ipcRenderer.send('open-file-dialog');
             },
             spawn() {
-                let _this = this;
                 this.run = spawnRun('npm run make', (data) => {
-                    _this.write(data + '');
+                    this.result({
+                        text: data,
+                        type: 'stdout'
+                    });
                 });
                 this.run.run();
             },

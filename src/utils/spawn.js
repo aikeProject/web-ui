@@ -26,8 +26,8 @@ class spawnRun {
         this.result.stdout.on('data', (data) => {
             data = decoder.decode(data);
             data = data.trim();
-            data = data.replace('\n', '\n\r');
-            data = data + '\n\n\r';
+            // data = data.replace('\n', '\n\r');
+            // data = data + '\n\n\r';
             this.resultCallback && this.resultCallback(data);
         });
 
@@ -37,7 +37,7 @@ class spawnRun {
         });
 
         this.result.on('close', (code) => {
-            this.resultCallback && this.resultCallback('---------exit--------');
+            this.resultCallback && this.resultCallback('\n\n\n---------exit--------');
         });
 
         this.result.on('exit', (code) => {
