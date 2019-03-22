@@ -12,7 +12,8 @@
                     <div class="app-main">
                         <div class="app-run">
                             <el-button v-if="!cmd.id" @click="spawn" icon="el-icon-caret-right" circle></el-button>
-                            <el-button v-if="cmd.id" @click="spawn" type="danger" icon="el-icon-close" circle></el-button>
+                            <el-button v-if="cmd.id" @click="spawn" type="danger" icon="el-icon-close"
+                                       circle></el-button>
                         </div>
                         <div class="terminal-view-wrapper">
                             <terminalView ref="terminal" :cols="100" :rows="24"
