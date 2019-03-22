@@ -11,17 +11,16 @@ const decoder = new util.TextDecoder('gbk');
 
 
 class spawnRun {
-    constructor(cmd, resultCallback, errorCallback) {
-        this.cmd = cmd;
+    constructor(options, resultCallback, errorCallback) {
+        this.options = options;
         this.resultCallback = resultCallback;
         this.errorCallback = errorCallback;
         this.result = null;
     }
 
     run() {
-        this.result = spawn(this.cmd, {
-            shell: true,
-        });
+        const options = Object.assign({}, {shell: true}, this.options);
+        this.result = spawn(this.options.cmd, options);
 
         this.result.stdout.on('data', (data) => {
             data = decoder.decode(data);
@@ -43,18 +42,19 @@ class spawnRun {
         this.result.on('exit', (code) => {
             // this.resultCallback && this.resultCallback('---------exit--------');
         });
-
-        return this.result;
     }
 
     close() {
         console.log('child_process--', this.result.pid);
-        execFile('taskkill', ['/T', '/F', '/PID', this.result.pid.toString()]);
-        // this.result.kill();
+        if (this.result) {
+            execFile('taskkill', ['/T', '/F', '/PID', this.result.pid.toString()]);
+            // this.result.kill();
+            this.result = null;
+        }
     }
 }
 
-export default (cmd, resultCallback, errorCallback) => {
-    return new spawnRun(cmd, resultCallback, errorCallback);
+export default (options, resultCallback, errorCallback) => {
+    return new spawnRun(options, resultCallback, errorCallback);
 }
 

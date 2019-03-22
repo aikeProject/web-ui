@@ -11,8 +11,8 @@
                 <el-main>
                     <div class="app-main">
                         <div class="app-run">
-                            <el-button @click="spawn">spawn</el-button>
-                            <el-button @click="close">close</el-button>
+                            <el-button v-if="!cmd.id" @click="spawn" icon="el-icon-caret-right" circle></el-button>
+                            <el-button v-if="cmd.id" @click="spawn" type="danger" icon="el-icon-close" circle></el-button>
                         </div>
                         <div class="terminal-view-wrapper">
                             <terminalView ref="terminal" :cols="100" :rows="24"
@@ -41,6 +41,7 @@
                 package: {},
                 run: null,
                 loading: null,
+                cmd: this.$store.getters.cmd
             }
         },
         components: {
@@ -58,7 +59,11 @@
                 ipcRenderer.send('open-file-dialog');
             },
             spawn() {
-                this.run = spawnRun('npm run make', (data) => {
+                this.run = spawnRun({
+                    cmd: 'npm run make',
+                    // 指定工作目录
+                    cwd: '',
+                }, (data) => {
                     this.result({
                         text: data,
                         type: 'stdout'
@@ -81,6 +86,9 @@
             ipcRenderer.on('selected-dir', (event, path) => {
                 console.log('path--', path);
                 if (path) {
+                    this.$store.dispatch('setCmd', {
+                        path: path[0],
+                    });
                     loadJsonFile(path + '\\package.json').then(json => {
                         this.package = json;
                         this.loading.close();

@@ -224,6 +224,7 @@
             height: 0;
             position: relative;
             padding-left: 16px;
+            padding-top: 10px;
         }
 
         .xterm-render {
