@@ -10,8 +10,6 @@ ipcMain.on('open-file-dialog', (event) => {
     dialog.showOpenDialog({
         properties: ['openFile', 'openDirectory']
     }, (files) => {
-        if (files) {
-            event.sender.send('selected-dir', files);
-        }
+        event.sender.send('selected-dir', files);
     });
 });

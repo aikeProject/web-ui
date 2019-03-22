@@ -5,12 +5,12 @@
                 <el-button @click="openFile">打开文件</el-button>
             </el-header>
             <el-container>
-                <el-aside width="200px" class="cu-el-aside">
-                    <aside :scripts="package.scripts"></aside>
+                <el-aside width="220px" class="cu-el-aside">
+                    <cu-aside :scripts="package.scripts"></cu-aside>
                 </el-aside>
                 <el-main>
                     <div class="app-main">
-                        <div>
+                        <div class="app-run">
                             <el-button @click="spawn">spawn</el-button>
                             <el-button @click="close">close</el-button>
                         </div>
@@ -40,14 +40,21 @@
                 path: '',
                 package: {},
                 run: null,
+                loading: null,
             }
         },
         components: {
             terminalView,
-            aside
+            'cu-aside': aside
         },
         methods: {
             openFile() {
+                this.loading = this.$loading({
+                    lock: true,
+                    text: 'Loading',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0)'
+                });
                 ipcRenderer.send('open-file-dialog');
             },
             spawn() {
@@ -73,16 +80,22 @@
         created() {
             ipcRenderer.on('selected-dir', (event, path) => {
                 console.log('path--', path);
-                loadJsonFile(path + '\\package.json').then(json => {
-                    this.package = json;
-                }, (e) => {
-                    this.$message({
-                        showClose: true,
-                        message: '路径不正确，需要包含package.json文件',
-                        type: 'error',
-                        // duration: 0
+                if (path) {
+                    loadJsonFile(path + '\\package.json').then(json => {
+                        this.package = json;
+                        this.loading.close();
+                    }, (e) => {
+                        this.loading.close();
+                        this.$message({
+                            showClose: true,
+                            message: '路径不正确，需要包含package.json文件',
+                            type: 'error',
+                            // duration: 0
+                        });
                     });
-                });
+                } else {
+                    this.loading.close();
+                }
             });
         },
         mounted() {
@@ -118,11 +131,26 @@
 
     .cu-el-aside {
         box-sizing: border-box;
-        border: 1px solid #cccccc;
+        /*border-right: 1px solid #cccccc;*/
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 10px;
     }
 
     .cu-el-header {
         box-sizing: border-box;
-        border: 1px solid #cccccc;
+        /*border-bottom: 1px solid #cccccc;*/
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+    }
+
+    .app-run {
+        padding: 10px 16px;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 6px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        margin-bottom: 10px;
     }
 </style>

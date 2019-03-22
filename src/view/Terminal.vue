@@ -215,6 +215,8 @@
 
         .xterm-bar {
             padding: 10px 16px;
+            border-bottom: 1px solid #cccccc;
+            box-sizing: border-box;
         }
 
         .view {
