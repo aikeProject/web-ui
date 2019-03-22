@@ -18,6 +18,7 @@ const state = {
         id: '',
         path: '',
         con: '',
+        status: 0,
     }
 };
 

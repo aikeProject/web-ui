@@ -11,8 +11,9 @@
                 <el-main>
                     <div class="app-main">
                         <div class="app-run">
-                            <el-button v-if="!cmd.id" @click="spawn" icon="el-icon-caret-right" circle></el-button>
-                            <el-button v-if="cmd.id" @click="spawn" type="danger" icon="el-icon-close"
+                            <el-button v-if="!doneCmd.status" @click="spawn" icon="el-icon-caret-right"
+                                       circle></el-button>
+                            <el-button v-if="doneCmd.status" @click="spawn" type="danger" icon="el-icon-close"
                                        circle></el-button>
                         </div>
                         <div class="terminal-view-wrapper">
@@ -42,8 +43,10 @@
                 package: {},
                 run: null,
                 loading: null,
-                cmd: this.$store.getters.cmd
             }
+        },
+        computed: {
+            doneCmd: this.$store.getters.cmd
         },
         components: {
             terminalView,
@@ -60,11 +63,15 @@
                 ipcRenderer.send('open-file-dialog');
             },
             spawn() {
+                const {cmd, path} = this.doneCmd;
                 this.run = spawnRun({
-                    cmd: 'npm run make',
+                    cmd: cmd,
                     // 指定工作目录
-                    cwd: '',
+                    cwd: path || '',
                 }, (data) => {
+                    this.$store.dispatch('setCmd', {
+                        status: 1
+                    });
                     this.result({
                         text: data,
                         type: 'stdout'
