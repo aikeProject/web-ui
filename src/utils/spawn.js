@@ -50,6 +50,7 @@ class spawnRun {
     close() {
         console.log('child_process--', this.result.pid);
         execFile('taskkill', ['/T', '/F', '/PID', this.result.pid.toString()]);
+        this.result.kill();
     }
 }
 

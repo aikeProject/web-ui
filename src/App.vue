@@ -1,22 +1,12 @@
 <template>
     <div class="app">
         <el-container class="custom-el-container">
-            <el-header>
+            <el-header class="cu-el-header">
                 <el-button @click="openFile">打开文件</el-button>
             </el-header>
             <el-container>
-                <el-aside width="200px">
-                    <template v-for="(v, i) in package.scripts">
-                        <el-card :body-style="{ padding: '0px' }">
-                            <img src="" class="image">
-                            <div style="padding: 14px;">
-                                <span>{{i}}</span>
-                                <div class="bottom clearfix">
-                                    <time class="time">{{ v }}</time>
-                                </div>
-                            </div>
-                        </el-card>
-                    </template>
+                <el-aside width="200px" class="cu-el-aside">
+                    <aside :scripts="package.scripts"></aside>
                 </el-aside>
                 <el-main>
                     <div class="app-main">
@@ -40,6 +30,7 @@
     import {ipcRenderer} from 'electron';
     import loadJsonFile from 'load-json-file';
     import terminalView from './view/Terminal.vue';
+    import aside from './view/Aside.vue';
     import spawnRun from './utils/spawn.js';
 
     export default {
@@ -52,7 +43,8 @@
             }
         },
         components: {
-            terminalView
+            terminalView,
+            aside
         },
         methods: {
             openFile() {
@@ -122,5 +114,15 @@
         flex: auto 1 1;
         height: 0;
         position: relative;
+    }
+
+    .cu-el-aside {
+        box-sizing: border-box;
+        border: 1px solid #cccccc;
+    }
+
+    .cu-el-header {
+        box-sizing: border-box;
+        border: 1px solid #cccccc;
     }
 </style>

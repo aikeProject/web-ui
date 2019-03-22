@@ -7,7 +7,8 @@
 <template>
     <div class="terminal-view card">
         <div class="xterm-bar">
-            <el-button icon="el-icon-delete" circle></el-button>
+            <el-button @click="clear" icon="el-icon-delete" circle size="mini"></el-button>
+            <el-button @click="scrollToBottom" icon="el-icon-arrow-down" circle size="mini"></el-button>
         </div>
         <div class="view">
             <div ref="render" class="xterm-render"/>
@@ -210,6 +211,10 @@
             background: #fff;
             border-radius: 6px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, .05);
+        }
+
+        .xterm-bar {
+            padding: 10px 16px;
         }
 
         .view {
