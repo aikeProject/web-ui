@@ -9,19 +9,7 @@
                     <cu-aside :scripts="package.scripts"></cu-aside>
                 </el-aside>
                 <el-main>
-                    <div class="app-main">
-                        <div class="app-run">
-                            <el-button v-if="!doneCmd.status" @click="spawn" icon="el-icon-caret-right"
-                                       circle></el-button>
-                            <el-button v-if="doneCmd.status" @click="spawn" type="danger" icon="el-icon-close"
-                                       circle></el-button>
-                        </div>
-                        <div class="terminal-view-wrapper">
-                            <terminalView ref="terminal" :cols="100" :rows="24"
-                                          auto-size
-                                          :options="{scrollback: 5000,disableStdin: true,useFlowControl: true}"></terminalView>
-                        </div>
-                    </div>
+                    <router-view></router-view>
                 </el-main>
             </el-container>
         </el-container>
@@ -31,9 +19,8 @@
 <script>
     import {ipcRenderer} from 'electron';
     import loadJsonFile from 'load-json-file';
-    import terminalView from './view/Terminal.vue';
     import aside from './view/Aside.vue';
-    import spawnRun from './utils/spawn.js';
+    import {each} from 'underscore';
 
     export default {
         name: 'App',
@@ -45,11 +32,8 @@
                 loading: null,
             }
         },
-        computed: {
-            doneCmd: this.$store.getters.cmd
-        },
+        computed: {},
         components: {
-            terminalView,
             'cu-aside': aside
         },
         methods: {
@@ -61,44 +45,29 @@
                     background: 'rgba(0, 0, 0, 0)'
                 });
                 ipcRenderer.send('open-file-dialog');
-            },
-            spawn() {
-                const {cmd, path} = this.doneCmd;
-                this.run = spawnRun({
-                    cmd: cmd,
-                    // 指定工作目录
-                    cwd: path || '',
-                }, (data) => {
-                    this.$store.dispatch('setCmd', {
-                        status: 1
-                    });
-                    this.result({
-                        text: data,
-                        type: 'stdout'
-                    });
-                });
-                this.run.run();
-            },
-            close() {
-                this.run.close();
-            },
-            async result(data) {
-                await this.$nextTick();
-                const terminal = this.$refs.terminal;
-                if (terminal) {
-                    terminal.addLog(data);
-                }
-            },
+            }
         },
         created() {
             ipcRenderer.on('selected-dir', (event, path) => {
                 console.log('path--', path);
                 if (path) {
-                    this.$store.dispatch('setCmd', {
-                        path: path[0],
-                    });
                     loadJsonFile(path + '\\package.json').then(json => {
                         this.package = json;
+                        const list = [];
+                        let i = 0;
+                        each(json.scripts, (item, key) => {
+                            list.push({
+                                id: i,
+                                path: path[0],
+                                con: '',
+                                status: 0,
+                                pid: '',
+                                cmd: `npm run ${key}`,
+                                cmdValue: item
+                            });
+                            i++;
+                        });
+                        this.$store.dispatch('setCmd', list);
                         this.loading.close();
                     }, (e) => {
                         this.loading.close();

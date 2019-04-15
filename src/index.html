@@ -19,6 +19,8 @@
     import App from './App';
     import store from './store';
     import {ResizeObserver} from 'vue-resize'
+    import router from './router';
+
 
     Vue.component('resize-observer', ResizeObserver);
     Vue.use(ElementUI);
@@ -26,6 +28,7 @@
     new Vue({
         el: '#app',
         store,
+        router,
         render: h => h(App)
     });
 

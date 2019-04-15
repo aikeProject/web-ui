@@ -31,28 +31,29 @@ class spawnRun {
         });
 
         this.result.stderr.on('data', (data) => {
-            data = decoder.decode(data);
-            this.errorCallback && this.errorCallback(data);
+            // data = decoder.decode(data);
+            // console.log('err');
+            // this.errorCallback && this.errorCallback(data);
         });
 
         this.result.on('close', (code) => {
             this.resultCallback && this.resultCallback('\n\n\n---------exit--------');
+            this.errorCallback && this.errorCallback();
         });
 
         this.result.on('exit', (code) => {
+            this.errorCallback && this.errorCallback();
             // this.resultCallback && this.resultCallback('---------exit--------');
         });
     }
-
-    close() {
-        console.log('child_process--', this.result.pid);
-        if (this.result) {
-            execFile('taskkill', ['/T', '/F', '/PID', this.result.pid.toString()]);
-            // this.result.kill();
-            this.result = null;
-        }
-    }
 }
+
+export const closeChildProcess = (pid) => {
+    console.log('child_process--', pid);
+    if (this.result) {
+        execFile('taskkill', ['/T', '/F', '/PID', pid.toString()]);
+    }
+};
 
 export default (options, resultCallback, errorCallback) => {
     return new spawnRun(options, resultCallback, errorCallback);

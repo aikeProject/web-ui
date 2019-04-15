@@ -1,7 +1,7 @@
 <template>
     <div class="_aside">
         <template v-for="(v, i) in scripts">
-            <div @click="clickScript(i, v)">
+            <div>
                 <el-card :body-style="{ padding: '0px' }">
                     <div style="padding: 24px; cursor: pointer;">
                         <span>{{i}}</span>
@@ -23,14 +23,7 @@
                 }
             }
         },
-        methods: {
-            clickScript(key, value) {
-                console.log('key---value---', key, value)
-                this.$store.dispatch('setCmd', {
-                    cmd: key,
-                });
-            }
-        }
+        methods: {}
     }
 </script>
 
