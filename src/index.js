@@ -11,7 +11,8 @@ let mainWindow;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
-if (isDevMode) enableLiveReload();
+// if (isDevMode) enableLiveReload();
+enableLiveReload();
 
 const createWindow = async () => {
     // Create the browser window.
@@ -24,10 +25,10 @@ const createWindow = async () => {
     mainWindow.loadURL(`file://${__dirname}/index.html`);
 
     // Open the DevTools.
-    if (isDevMode) {
-        await installExtension(VUEJS_DEVTOOLS);
-        mainWindow.webContents.openDevTools();
-    }
+    // if (isDevMode) {
+    await installExtension(VUEJS_DEVTOOLS);
+    mainWindow.webContents.openDevTools();
+    // }
 
     // Emitted when the window is closed.
     mainWindow.on('closed', () => {
@@ -64,7 +65,7 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 function load() {
-    const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'))
+    const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'));
     files.forEach((file) => {
         require(file)
     })

@@ -36,36 +36,10 @@
             }
         },
         methods: {
-            spawn() {
-                let {cmd, path, con} = this.doneCmd;
-                console.log('npm--', cmd);
-                this.run = spawnRun({
-                    cmd: cmd,
-                    // 指定工作目录
-                    cwd: path || '',
-                }, (data) => {
-                    con += data;
-                    this.$store.dispatch('setCmdId', {
-                        id: this.$route.params.id,
-                        data: {
-                            status: 1,
-                            con: con,
-                            pid: this.run.result.pid
-                        }
-                    });
-                    this.result({
-                        text: data,
-                        type: 'stdout'
-                    });
-                }, () => {
-                    this.$store.dispatch('setCmdId', {
-                        id: this.$route.params.id,
-                        data: {
-                            status: 0,
-                        }
-                    });
-                });
-                this.run.run();
+            childSpawn() {
+                const {path, cmd} = this.doneCmd;
+                // 发送消息让服务端运行命令行
+                window.socket.emit('run', {path, cmd});
             },
             close() {
                 this.$store.dispatch('setCmdId', {
@@ -86,6 +60,9 @@
         },
         created() {
             let {con} = this.doneCmd;
+            window.socket.on('', (data) => {
+
+            });
             this.result({
                 text: con,
                 type: 'stdout'

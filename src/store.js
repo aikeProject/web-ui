@@ -22,7 +22,7 @@ const CMD = JSON.parse(sessionStorage.getItem('CMD')) || [{
 
 const types = {
     SET_CMD: 'SET_CMD',
-    SET_CMD_ID: 'GET_CMD_ID'
+    SET_CMD_ID: 'SET_CMD_ID'
 };
 
 const state = {

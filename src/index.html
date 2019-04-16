@@ -20,7 +20,13 @@
     import store from './store';
     import {ResizeObserver} from 'vue-resize'
     import router from './router';
+    import socketIoClient from 'socket.io-client';
+    /*
+        * Listen socket
+        * */
+    window.socket = socketIoClient('http://localhost:3000');
 
+    window.socket.emit('test', 'socket链接');
 
     Vue.component('resize-observer', ResizeObserver);
     Vue.use(ElementUI);
