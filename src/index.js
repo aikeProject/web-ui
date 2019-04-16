@@ -3,8 +3,11 @@ import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer';
 import {enableLiveReload} from 'electron-compile';
 import glob from 'glob';
 import path from 'path';
-
-require('./server/bin/www');
+import child_process from 'child_process';
+child_process.fork(path.join(__dirname, 'server/bin/www'));
+// const files = glob.sync(path.join(__dirname, 'server/bin/www'));
+// require(files[0]);
+// console.log('files--', files);
 
 load();
 // Keep a global reference of the window object, if you don't, the window will
@@ -13,8 +16,8 @@ let mainWindow;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
-// if (isDevMode) enableLiveReload();
-enableLiveReload();
+if (isDevMode) enableLiveReload();
+// enableLiveReload();
 
 const createWindow = async () => {
     // Create the browser window.

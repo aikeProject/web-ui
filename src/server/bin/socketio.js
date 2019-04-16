@@ -22,6 +22,7 @@ const socketIo = {
             socket.on('test', (data) => {
                 console.info('test-data--', data);
             });
+            socket.emit('kk', 'kkkkk');
 
             // scripts命令
             socket.on('scripts', (data) => {

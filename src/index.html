@@ -28,6 +28,10 @@
 
     window.socket.emit('test', 'socket链接');
 
+    window.socket.on('kk', (data) => {
+        console.log('socket-data---', data);
+    });
+
     Vue.component('resize-observer', ResizeObserver);
     Vue.use(ElementUI);
 
