@@ -10,7 +10,7 @@
     "make": "electron-forge make",
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\"",
-    "server": "npm start --prefix server",
+    "server": "nodemon src/server/bin/www",
     "client:server": "npx concurrently \"npm run server\" \"npm start\""
   },
   "keywords": [],
@@ -31,7 +31,8 @@
         ]
       },
       "electronPackagerConfig": {
-        "packageManager": "yarn"
+        "packageManager": "npm",
+        "ignore": "(.idea)|(.git)"
       },
       "electronWinstallerConfig": {
         "name": "web_ui"
@@ -62,7 +63,15 @@
     "vue-router": "^3.0.5",
     "vueify": "^9.4.1",
     "vuex": "^3.1.0",
-    "xterm": "^3.12.0"
+    "xterm": "^3.12.0",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.9",
+    "express": "~4.16.0",
+    "http-errors": "~1.6.2",
+    "jade": "~1.11.0",
+    "lowdb": "^1.0.0",
+    "morgan": "~1.9.0",
+    "socket.io": "^2.2.0"
   },
   "devDependencies": {
     "babel-plugin-transform-async-to-generator": "^6.24.1",
@@ -70,6 +79,7 @@
     "babel-preset-react": "^6.24.1",
     "concurrently": "^4.1.0",
     "electron-forge": "^5.2.4",
-    "electron-prebuilt-compile": "4.0.0"
+    "electron-prebuilt-compile": "4.0.0",
+    "nodemon": "^1.18.11"
   }
 }

@@ -4,6 +4,8 @@ import {enableLiveReload} from 'electron-compile';
 import glob from 'glob';
 import path from 'path';
 
+require('./server/bin/www');
+
 load();
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.

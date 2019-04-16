@@ -4,17 +4,17 @@
  * @Description:
  */
 
-import util from 'util';
-import {spawn, execFile} from 'child_process';
+const util = require('util');
+const child_process = require('child_process');
 
-const decoder = new util.TextDecoder('gbk');
+const decoder = new util.TextDecoder('utf-8');
 
 const childProcessSpawn = {
     id: 0,
     result: null,
     run(options) {
         options = Object.assign({}, {shell: true}, options);
-        this.result = spawn(options.cmd, options);
+        this.result = child_process.spawn(options.cmd, options);
         this.id++;
         return this;
     },
