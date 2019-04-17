@@ -14,6 +14,7 @@
 </body>
 
 <script>
+    import {ipcRenderer} from 'electron';
     import Vue from 'vue';
     import ElementUI from 'element-ui';
     import App from './App';
@@ -31,6 +32,15 @@
     window.socket.on('kk', (data) => {
         console.log('socket-data---', data);
     });
+
+    /*
+    * 住进程消息
+    * */
+    // ipcRenderer.send('testIpcRendererKK', 'kk');
+    // ipcRenderer.on('testIpcRendererKK', (event, data) => {
+    //     console.log(data);
+    // });
+    // ipcRenderer.send('testIpcRenderer', 'testIpcRenderer-----');
 
     Vue.component('resize-observer', ResizeObserver);
     Vue.use(ElementUI);

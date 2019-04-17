@@ -3,10 +3,11 @@
         <el-container class="custom-el-container">
             <el-header class="cu-el-header">
                 <el-button @click="openFile">打开文件</el-button>
+                <el-button @click="test">测试</el-button>
             </el-header>
             <el-container>
                 <el-aside width="220px" class="cu-el-aside">
-                    <cu-aside :scripts="package.scripts"></cu-aside>
+                    <cu-aside :scripts="scripts"></cu-aside>
                 </el-aside>
                 <el-main>
                     <router-view></router-view>
@@ -20,14 +21,13 @@
     import {ipcRenderer} from 'electron';
     import loadJsonFile from 'load-json-file';
     import aside from './view/Aside.vue';
-    import {each} from 'underscore';
 
     export default {
         name: 'App',
         data() {
             return {
                 path: '',
-                package: {},
+                scripts: {},
                 run: null,
                 loading: null,
             }
@@ -45,29 +45,34 @@
                     background: 'rgba(0, 0, 0, 0)'
                 });
                 ipcRenderer.send('open-file-dialog');
+            },
+            test() {
+                ipcRenderer.send('test');
             }
         },
         created() {
+            // 获取 scripts
+            ipcRenderer.send('scripts');
+            ipcRenderer.on('scripts', (event, data) => {
+                this.scripts = data;
+            });
+
+            // 获取scriptsList 存进store
+            ipcRenderer.send('scriptsList');
+            ipcRenderer.on('scriptsList', (event, data) => {
+                if ((data || []).length) {
+                    this.$store.dispatch('setCmd', data);
+                }
+            });
+
             ipcRenderer.on('selected-dir', (event, path) => {
-                console.log('path--', path);
                 if (path) {
                     loadJsonFile(path + '\\package.json').then(json => {
-                        this.package = json;
-                        const list = [];
-                        let i = 0;
-                        each(json.scripts, (item, key) => {
-                            list.push({
-                                id: i,
-                                path: path[0],
-                                con: '',
-                                status: 0,
-                                pid: '',
-                                cmd: `npm run ${key}`,
-                                cmdValue: item
-                            });
-                            i++;
+                        this.scripts = json.scripts;
+                        ipcRenderer.send('scripts', {
+                            scripts: json.scripts,
+                            path: path[0]
                         });
-                        this.$store.dispatch('setCmd', list);
                         this.loading.close();
                     }, (e) => {
                         this.loading.close();
@@ -84,7 +89,7 @@
             });
         },
         mounted() {
-        }
+        },
     }
 </script>
 

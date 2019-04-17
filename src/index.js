@@ -3,11 +3,11 @@ import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer';
 import {enableLiveReload} from 'electron-compile';
 import glob from 'glob';
 import path from 'path';
-import child_process from 'child_process';
-child_process.fork(path.join(__dirname, 'server/bin/www'));
-// const files = glob.sync(path.join(__dirname, 'server/bin/www'));
-// require(files[0]);
-// console.log('files--', files);
+import fs from 'fs';
+import {dbJSON} from './db';
+
+// import child_process from 'child_process';
+// child_process.fork(path.join(__dirname, 'server/bin/www'));
 
 load();
 // Keep a global reference of the window object, if you don't, the window will
@@ -53,6 +53,10 @@ app.on('ready', createWindow);
 app.on('window-all-closed', () => {
     // On OS X it is common for applications and their menu bar
     // to stay active until the user quits explicitly with Cmd + Q
+    fs.unlink(path.join(__dirname, 'db.json'), (err) => {
+        if (err) throw err;
+        console.log('文件已删除 db.json');
+    });
     if (process.platform !== 'darwin') {
         app.quit();
     }
@@ -73,5 +77,8 @@ function load() {
     const files = glob.sync(path.join(__dirname, 'main-process/**/*.js'));
     files.forEach((file) => {
         require(file)
-    })
+    });
+
+    // db dbJSON
+    dbJSON.defaults({scripts: {}, scriptsList: [], pidValue: {}}).write();
 }

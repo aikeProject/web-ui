@@ -21,6 +21,7 @@ const router = new Router({
         },
         {
             path: '/main/:id',
+            name: 'main',
             component: Main,
         },
     ]

@@ -4,12 +4,12 @@
  * @Description:
  */
 
-import util from 'util';
-import {exec, spawn} from 'child_process';
+import {execFile} from 'child_process';
 
-const pExec = util.promisify(exec);
-const decoder = new util.TextDecoder('gbk');
-
-export default {
-
+export const closeChildProcess = (pid) => {
+    console.log('closeChildProcess--', pid);
+    if (pid) {
+        execFile('taskkill', ['/T', '/F', '/PID', pid.toString()]);
+        console.log('taskkill 结束', pid);
+    }
 };

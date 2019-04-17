@@ -48,13 +48,6 @@ class spawnRun {
     }
 }
 
-export const closeChildProcess = (pid) => {
-    console.log('child_process--', pid);
-    if (this.result) {
-        execFile('taskkill', ['/T', '/F', '/PID', pid.toString()]);
-    }
-};
-
 export default (options, resultCallback, errorCallback) => {
     return new spawnRun(options, resultCallback, errorCallback);
 }

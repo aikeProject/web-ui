@@ -10,7 +10,7 @@ import {clone} from 'underscore';
 
 Vue.use(Vuex);
 
-const CMD = JSON.parse(sessionStorage.getItem('CMD')) || [{
+const CMD = [{
     id: '',
     path: '',
     con: '',
@@ -39,13 +39,11 @@ const getters = {
 const mutations = {
     [types.SET_CMD](state, cmd) {
         if (cmd) state.cmd = cmd;
-        sessionStorage.setItem('CMD', JSON.stringify(cmd));
     },
     [types.SET_CMD_ID](state, data) {
         let cloneCmd = clone(state.cmd);
         cloneCmd[data.id] = Object.assign({}, cloneCmd[data.id], data.data);
         state.cmd = cloneCmd;
-        sessionStorage.setItem('CMD', JSON.stringify(cloneCmd));
     }
 };
 

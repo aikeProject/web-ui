@@ -1,9 +1,9 @@
 <template>
     <div class="app-main">
         <div class="app-run">
-            <el-button v-if="!doneCmd.status" @click="spawn" icon="el-icon-caret-right"
+            <el-button v-if="!doneCmd.pid" @click="childSpawn" icon="el-icon-caret-right"
                        circle></el-button>
-            <el-button v-if="doneCmd.status" @click="close" type="danger" icon="el-icon-close"
+            <el-button v-if="!!doneCmd.pid" @click="close" type="danger" icon="el-icon-close"
                        circle></el-button>
         </div>
         <div class="terminal-view-wrapper">
@@ -15,40 +15,54 @@
 </template>
 
 <script>
-    import spawnRun, {closeChildProcess} from '../utils/spawn.js';
     import terminalView from './Terminal.vue';
+    import {ipcRenderer} from 'electron';
 
     export default {
         name: "Main",
         data: function () {
             return {
-                id: this.$route.params.id
+                id: this.$route.params.id,
             }
         },
         components: {
             terminalView,
         },
+        watch: {
+            '$route'(to, from) {
+                // 对路由变化作出响应...
+                this.id = to.params.id;
+            },
+            doneCmd(data) {
+                // pid
+                ipcRenderer.send('runScriptsPid', {
+                    pid: data.pid
+                });
+                // 清空 窗口
+                this.$refs.terminal.clear();
+                ipcRenderer.send('pidValue', {
+                    pid: data.pid
+                });
+            }
+        },
         computed: {
             doneCmd() {
-                console.log('id', this.id);
-                console.log('data', this.$store.getters.getCmdId(this.id));
                 return this.$store.getters.getCmdId(this.id);
             }
         },
         methods: {
             childSpawn() {
-                const {path, cmd} = this.doneCmd;
-                // 发送消息让服务端运行命令行
-                window.socket.emit('run', {path, cmd});
+                const {path, cmd, id} = this.doneCmd;
+                // 执行命令
+                ipcRenderer.send('runScripts', {
+                    path, cmd, id
+                });
             },
             close() {
-                this.$store.dispatch('setCmdId', {
-                    id: this.$route.params.id,
-                    data: {
-                        status: 0
-                    }
+                const {pid} = this.doneCmd;
+                ipcRenderer.send('close', {
+                    pid: pid || ''
                 });
-                closeChildProcess(this.doneCmd.pid);
             },
             async result(data) {
                 await this.$nextTick();
@@ -59,13 +73,34 @@
             },
         },
         created() {
-            let {con} = this.doneCmd;
-            window.socket.on('', (data) => {
-
+            // 运行中进程返回的数据
+            ipcRenderer.on('childData', (event, data) => {
+                const {pid} = this.doneCmd;
+                if (data && data.pid === pid) {
+                    this.result({
+                        text: data.data,
+                        type: 'stdout'
+                    });
+                }
             });
-            this.result({
-                text: con,
-                type: 'stdout'
+
+            ipcRenderer.on('prePidValue', (event, data) => {
+                const {pid} = this.doneCmd;
+                if (data && data.pid === pid) {
+                    this.result({
+                        text: data.data
+                    });
+                }
+            });
+
+            // getRunScripts
+            ipcRenderer.on('getRunScripts', (event, data) => {
+                console.log('getRunScripts', data);
+            });
+
+            // 当前的进程
+            ipcRenderer.on('oneChild', (event, data) => {
+                console.log('oneChild', data);
             });
         }
     }
