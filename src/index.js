@@ -6,10 +6,8 @@ import path from 'path';
 import fs from 'fs';
 import {dbJSON} from './db';
 
-// import child_process from 'child_process';
-// child_process.fork(path.join(__dirname, 'server/bin/www'));
-
 load();
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow;
