@@ -6,7 +6,7 @@
                     <el-card :body-style="{ padding: '0px' }" shadow="hover">
                         <div style="padding: 24px; cursor: pointer;">
                             <span class="active-color">{{v.key}}</span>
-                            <span class="run">{{!!v.pid ? '运行中' : ''}}</span>
+                            <span class="run">{{v.status === 1 ? '运行中' : v.status === 2 ? '已结束' : ''}}</span>
                         </div>
                     </el-card>
                 </div>

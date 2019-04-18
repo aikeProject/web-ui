@@ -1,10 +1,12 @@
 <template>
     <div class="app-main">
         <div class="app-run">
-            <el-button v-if="!doneCmd.pid" @click="childSpawn" icon="el-icon-caret-right"
+            <el-button v-if="doneCmd && (doneCmd.status === 0 || doneCmd.status === 2)" @click="childSpawn"
+                       icon="el-icon-caret-right"
                        circle></el-button>
-            <el-button v-if="!!doneCmd.pid" @click="close" type="danger" icon="el-icon-close"
+            <el-button v-if="doneCmd && (doneCmd.status === 1)" @click="close" type="danger" icon="el-icon-close"
                        circle></el-button>
+            <code class="code">{{doneCmd && doneCmd.cmdValue}}</code>
         </div>
         <div class="terminal-view-wrapper">
             <terminalView ref="terminal" :cols="100" :rows="24" auto-size
@@ -35,12 +37,12 @@
             doneCmd(data) {
                 // pid
                 ipcRenderer.send('runScriptsPid', {
-                    pid: data.pid
+                    pid: data && data.pid
                 });
                 // 清空 窗口
-                this.$refs.terminal.clear();
+                this.$refs.terminal && this.$refs.terminal.clear();
                 ipcRenderer.send('pidValue', {
-                    pid: data.pid
+                    pid: data && data.pid
                 });
             }
         },
@@ -106,5 +108,12 @@
 </script>
 
 <style scoped>
-
+    .code {
+        color: #606266;
+        margin-left: 10px;
+        background: #f5f7fa;
+        padding: 10px;
+        border-radius: 5px;
+        font-size: 13px;
+    }
 </style>

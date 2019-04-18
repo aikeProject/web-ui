@@ -29,7 +29,6 @@ ipcMain.on('scripts', (event, data) => {
             list.push({
                 id: i,
                 path: path,
-                con: '',
                 status: 0,
                 pid: '',
                 cmd: `npm run ${key}`,
@@ -65,7 +64,8 @@ ipcMain.on('runScripts', (event, data) => {
         if (child) {
             childProcessSpawnObj[child.result.pid] = child;
             dbJSON.set(`pidValue.${child.result.pid}`, []).write();
-            dbJSON.get('scriptsList').find({id: id}).assign({pid: child.result.pid}).write();
+            /* status 1 运行中 2 结束*/
+            dbJSON.get('scriptsList').find({id: id}).assign({pid: child.result.pid, status: 1}).write();
         }
     }
     event.sender.send('getRunScripts', childProcessSpawnObj);
@@ -100,6 +100,10 @@ ipcMain.on('runScriptsPid', (event, data) => {
                     dbJSON.get(`pidValue.${pid}`).push(data).write();
                 });
                 child.closeCallback(() => {
+                    // 结束进程
+                    dbJSON.get('scriptsList').find({pid: pid}).assign({status: 2}).write();
+                    event.sender.send('scriptsList', dbJSON.get('scriptsList').value());
+                    event.sender.send('getRunScripts', childProcessSpawnObj);
                     event.sender.send('childData', '\n\n----exit---');
                 });
             }
@@ -127,9 +131,6 @@ ipcMain.on('close', (event, data) => {
         const {pid} = data;
         // 结束node进程
         closeChildProcess(pid);
-        dbJSON.get('scriptsList').find({pid: pid}).assign({pid: ''}).write();
-        event.sender.send('scriptsList', dbJSON.get('scriptsList').value());
-        event.sender.send('getRunScripts', childProcessSpawnObj);
     }
 });
 
