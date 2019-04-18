@@ -7,8 +7,7 @@
                        circle></el-button>
         </div>
         <div class="terminal-view-wrapper">
-            <terminalView ref="terminal" :cols="100" :rows="24"
-                          auto-size
+            <terminalView ref="terminal" :cols="100" :rows="24" auto-size
                           :options="{scrollback: 5000,disableStdin: true,useFlowControl: true}"></terminalView>
         </div>
     </div>

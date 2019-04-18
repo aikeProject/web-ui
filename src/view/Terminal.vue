@@ -121,7 +121,6 @@
             content: 'setContent',
 
             darkMode(value, oldValue) {
-                console.log(value, oldValue);
                 if (typeof oldValue === 'undefined') {
                     this.initTerminal()
                 } else if (this.$_terminal) {
